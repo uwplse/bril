@@ -484,8 +484,24 @@ impl CompileEnv<'_> {
                     let thn = builder.use_var(self.vars[&args[1]]);
                     let els = builder.use_var(self.vars[&args[2]]);
                     let res = builder.ins().select(cond, thn, els);
-                    builder.def_var(self.vars[dest], res);    
+                    builder.def_var(self.vars[dest], res);
                 }
+                bril::ValueOps::Smax => {
+                    let a = builder.use_var(self.vars[&args[0]]);
+                    let b = builder.use_var(self.vars[&args[1]]);
+                    let cmp = builder.ins().icmp(IntCC::SignedGreaterThan, a, b);
+                    let res = builder.ins().select(cmp, a, b);
+                    builder.def_var(self.vars[dest], res);
+                }
+
+                bril::ValueOps::Smin => {
+                    let a = builder.use_var(self.vars[&args[0]]);
+                    let b = builder.use_var(self.vars[&args[1]]);
+                    let cmp = builder.ins().icmp(IntCC::SignedLessThan, a, b);
+                    let res = builder.ins().select(cmp, a, b);
+                    builder.def_var(self.vars[dest], res);
+                }
+
                 bril::ValueOps::Lt
                 | bril::ValueOps::Le
                 | bril::ValueOps::Eq

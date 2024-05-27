@@ -664,6 +664,76 @@ fn build_instruction<'a, 'b>(
             dest,
             funcs: _,
             labels: _,
+            op: ValueOps::Smax,
+            op_type: _,
+        } => {
+            let sel_name = fresh.fresh_var();
+            let ret_name= fresh.fresh_var();
+            build_op(
+                context,
+                builder,
+                heap,
+                fresh,
+                |v| {
+                    let pred = builder.build_int_compare::<IntValue>(
+                        IntPredicate::SGT,
+                        v[0].try_into().unwrap(),
+                        v[1].try_into().unwrap(),
+                        &sel_name
+                    ).unwrap();
+                    builder
+                        .build_select::<BasicValueEnum, IntValue>(
+                            pred,
+                            v[0],
+                            v[1],
+                            &ret_name
+                        ).unwrap().into()
+                },
+                args,
+                dest
+            )
+        }
+
+        Instruction::Value {
+            args,
+            dest,
+            funcs: _,
+            labels: _,
+            op: ValueOps::Smin,
+            op_type: _,
+        } => {
+            let sel_name = fresh.fresh_var();
+            let ret_name= fresh.fresh_var();
+            build_op(
+                context,
+                builder,
+                heap,
+                fresh,
+                |v| {
+                    let pred = builder.build_int_compare::<IntValue>(
+                        IntPredicate::SLT,
+                        v[0].try_into().unwrap(),
+                        v[1].try_into().unwrap(),
+                        &sel_name
+                    ).unwrap();
+                    builder
+                        .build_select::<BasicValueEnum, IntValue>(
+                            pred,
+                            v[0],
+                            v[1],
+                            &ret_name
+                        ).unwrap().into()
+                },
+                args,
+                dest
+            )
+        }
+
+        Instruction::Value {
+            args,
+            dest,
+            funcs: _,
+            labels: _,
             op: ValueOps::Fadd,
             op_type: _,
         } => {
