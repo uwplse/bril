@@ -1471,6 +1471,20 @@ pub fn create_module_from_program<'a>(
 
                 // For each function, we also need to push all variables onto the stack
                 let mut heap = Heap::new();
+                let mut new_instrs = instrs.clone();
+                // if we start with a label and there are no arguments, we can re-use this block instead of making an empty one
+                let label_to_use = if llvm_func.get_param_iter().count() == 0 {
+                    if let Some(Code::Label { label }) = instrs.iter().next() {
+                        // also remove the label instruction so we don't do it again
+                        new_instrs.remove(0);
+
+                        label.clone()
+                    } else {
+                        fresh.fresh_label()
+                    }
+                } else {
+                    fresh.fresh_label()
+                };
                 let block = context.append_basic_block(llvm_func, &fresh.fresh_label());
                 builder.position_at_end(block);
 
@@ -1492,7 +1506,7 @@ pub fn create_module_from_program<'a>(
                     }
                 });
 
-                (llvm_func, instrs, block, heap, return_type)
+                (llvm_func, new_instrs, block, heap, return_type)
             },
         )
         .collect(); // Important to collect, can't be done lazily because we need all functions to be loaded in before a call instruction of a function is processed.
