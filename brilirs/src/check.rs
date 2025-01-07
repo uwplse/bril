@@ -95,6 +95,22 @@ fn type_check_instruction<'a>(
       update_env(env, dest, const_type)
     }
     Instruction::Value {
+      op: ValueOps::Abs,
+      dest,
+      op_type,
+      args,
+      funcs,
+      labels,
+      pos: _,
+    } => {
+      check_num_args(1, args)?;
+      check_num_funcs(0, funcs)?;
+      check_num_labels(0, labels)?;
+      check_asmt_type(&Type::Int, get_type(env, 0, args)?)?;
+      check_asmt_type(&Type::Int, op_type)?;
+      update_env(env, dest, op_type)
+    }
+    Instruction::Value {
       op:
         ValueOps::Add
         | ValueOps::Sub

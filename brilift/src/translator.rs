@@ -364,6 +364,7 @@ impl CompileEnv<'_> {
     /// Translate Bril opcodes that have CLIF equivalents.
     fn translate_op(op: bril::ValueOps) -> ir::Opcode {
         match op {
+            bril::ValueOps::Abs => ir::Opcode::Iabs,
             bril::ValueOps::Add => ir::Opcode::Iadd,
             bril::ValueOps::Sub => ir::Opcode::Isub,
             bril::ValueOps::Mul => ir::Opcode::Imul,
@@ -473,6 +474,11 @@ impl CompileEnv<'_> {
                 op_type,
                 ..
             } => match op {
+                bril::ValueOps::Abs => {
+                    let x = builder.use_var(self.vars[&args[0]]);
+                    let res = builder.ins().iabs(x);
+                    builder.def_var(self.vars[dest], res);
+                }
                 bril::ValueOps::Add
                 | bril::ValueOps::Sub
                 | bril::ValueOps::Mul

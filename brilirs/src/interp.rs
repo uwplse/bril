@@ -324,11 +324,15 @@ fn execute_value_op<T: std::io::Write>(
   last_label: Option<&String>,
 ) -> Result<(), InterpError> {
   use bril_rs::ValueOps::{
-    Add, Alloc, And, Call, Ceq, Cge, Cgt, Char2int, Cle, Clt, Div, Eq, Fadd, Fdiv, Feq, Fge, Fgt,
-    Fle, Flt, Fmax, Fmin, Fmul, Fsub, Ge, Gt, Id, Int2char, Le, Load, Lt, Mul, Not, Or, Phi,
+    Abs, Add, Alloc, And, Call, Ceq, Cge, Cgt, Char2int, Cle, Clt, Div, Eq, Fadd, Fdiv, Feq, Fge,
+    Fgt, Fle, Flt, Fmax, Fmin, Fmul, Fsub, Ge, Gt, Id, Int2char, Le, Load, Lt, Mul, Not, Or, Phi,
     PtrAdd, Select, Shl, Shr, Smax, Smin, Sub,
   };
   match op {
+    Abs => {
+      let arg0 = get_arg::<i64>(&state.env, 0, args);
+      state.env.set(dest, Value::Int(arg0.abs()));
+    }
     Add => {
       let arg0 = get_arg::<i64>(&state.env, 0, args);
       let arg1 = get_arg::<i64>(&state.env, 1, args);
