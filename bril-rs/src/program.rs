@@ -393,6 +393,8 @@ impl Display for EffectOps {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum ValueOps {
+    /// Absolute Values
+    Abs,
     /// <https://capra.cs.cornell.edu/bril/lang/core.html#arithmetic>
     Add,
     /// <https://capra.cs.cornell.edu/bril/lang/core.html#arithmetic>
@@ -502,6 +504,7 @@ pub enum ValueOps {
 impl Display for ValueOps {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Abs => write!(f, "abs"),
             Self::Add => write!(f, "add"),
             Self::Sub => write!(f, "sub"),
             Self::Mul => write!(f, "mul"),
