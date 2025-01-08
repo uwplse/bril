@@ -787,17 +787,57 @@ fn from_expr_to_bril(expr: Expr, state: &mut State) -> (Option<String>, Vec<Code
                 })
                 .unzip();
             let mut code: Vec<Code> = vec_code.into_iter().flatten().collect();
-            if f == "drop" {
-                code.push(Code::Instruction(Instruction::Effect {
-                    args: vars,
-                    funcs: Vec::new(),
-                    labels: Vec::new(),
-                    op: EffectOps::Free,
-                    pos,
-                }));
-                (None, code)
-            } else {
-                match state.get_ret_type_for_func(&f) {
+            match f.as_str() {
+                "drop" => {
+                    code.push(Code::Instruction(Instruction::Effect {
+                        args: vars,
+                        funcs: Vec::new(),
+                        labels: Vec::new(),
+                        op: EffectOps::Free,
+                        pos,
+                    }));
+                    (None, code)
+                }
+                "abs" => {
+                    let dest = state.fresh_var(Type::Int);
+                    code.push(Code::Instruction(Instruction::Value {
+                        args: vars,
+                        dest: dest.clone(),
+                        funcs: Vec::new(),
+                        labels: Vec::new(),
+                        op: ValueOps::Abs,
+                        pos,
+                        op_type: Type::Int,
+                    }));
+                    (Some(dest), code)
+                }
+                "min" => {
+                    let dest = state.fresh_var(Type::Int);
+                    code.push(Code::Instruction(Instruction::Value {
+                        args: vars,
+                        dest: dest.clone(),
+                        funcs: Vec::new(),
+                        labels: Vec::new(),
+                        op: ValueOps::Smin,
+                        pos,
+                        op_type: Type::Int,
+                    }));
+                    (Some(dest), code)
+                }
+                "max" => {
+                    let dest = state.fresh_var(Type::Int);
+                    code.push(Code::Instruction(Instruction::Value {
+                        args: vars,
+                        dest: dest.clone(),
+                        funcs: Vec::new(),
+                        labels: Vec::new(),
+                        op: ValueOps::Smax,
+                        pos,
+                        op_type: Type::Int,
+                    }));
+                    (Some(dest), code)
+                }
+                _ => match state.get_ret_type_for_func(&f) {
                     None => {
                         code.push(Code::Instruction(Instruction::Effect {
                             args: vars,
@@ -821,7 +861,7 @@ fn from_expr_to_bril(expr: Expr, state: &mut State) -> (Option<String>, Vec<Code
                         }));
                         (Some(dest), code)
                     }
-                }
+                },
             }
         }
         Expr::Cast(ExprCast {
