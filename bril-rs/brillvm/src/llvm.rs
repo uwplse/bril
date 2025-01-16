@@ -7,7 +7,10 @@ use inkwell::{
     intrinsics::Intrinsic,
     module::Module,
     types::{BasicMetadataTypeEnum, BasicType, BasicTypeEnum, FunctionType},
-    values::{BasicValue, BasicValueEnum, FloatValue, FunctionValue, IntValue, PointerValue},
+    values::{
+        BasicMetadataValueEnum, BasicValue, BasicValueEnum, FloatValue, FunctionValue, IntValue,
+        PointerValue,
+    },
     AddressSpace, FloatPredicate, IntPredicate,
 };
 
@@ -209,33 +212,34 @@ fn build_instruction<'a, 'b>(
             op: ValueOps::Abs,
             op_type: _,
         } => {
-            let abs_intrinsic = Intrinsic::find("llvm.abs").unwrap();
-            let abs_fn = abs_intrinsic.get_declaration(&module, &[]).unwrap();
+            let abs_intrinsic = Intrinsic::find("llvm.abs.i64").unwrap();
+            let abs_fn = abs_intrinsic
+                .get_declaration(&module, &[BasicTypeEnum::IntType(context.i64_type())])
+                .unwrap();
 
             let ret_name = fresh.fresh_var();
-            build_op(
-                context,
-                builder,
-                heap,
-                fresh,
-                |v| {
-                    builder
-                        .build_call(
-                            abs_fn,
-                            v.iter()
-                                .map(|val| (*val).into())
-                                .collect::<Vec<_>>()
-                                .as_slice(),
-                            &ret_name,
-                        )
-                        .unwrap()
-                        .try_as_basic_value()
-                        .left()
-                        .unwrap()
-                },
-                args,
-                dest,
-            );
+
+            // second arg to llvm.abs is a boolean flag indicating
+            // whether the result value of the ‘llvm.abs’ intrinsic is a poison value if the
+            // first arg is INT_MIN
+            // https://llvm.org/docs/LangRef.html#llvm-abs-intrinsic
+            let fals = BasicValueEnum::IntValue(context.bool_type().const_int(0, false));
+
+            let mut args: Vec<BasicMetadataValueEnum> = args
+                .iter()
+                .map(|n| build_load(context, builder, &heap.get(n), &fresh.fresh_var()).into())
+                .collect();
+
+            args.push(fals.into());
+
+            let op = builder
+                .build_call(abs_fn, &args, &ret_name)
+                .unwrap()
+                .try_as_basic_value()
+                .left()
+                .unwrap();
+
+            builder.build_store(heap.get(dest).ptr, op).unwrap();
         }
         // Special case where Bril casts integers to floats
         Instruction::Constant {
@@ -711,8 +715,10 @@ fn build_instruction<'a, 'b>(
             op: ValueOps::Smax,
             op_type: _,
         } => {
-            let smax_intrinsic = Intrinsic::find("llvm.smax").unwrap();
-            let smax_fn = smax_intrinsic.get_declaration(&module, &[]).unwrap();
+            let smax_intrinsic = Intrinsic::find("llvm.smax.i64").unwrap();
+            let smax_fn = smax_intrinsic
+                .get_declaration(&module, &[BasicTypeEnum::IntType(context.i64_type())])
+                .unwrap();
 
             let ret_name = fresh.fresh_var();
             build_op(
@@ -748,8 +754,10 @@ fn build_instruction<'a, 'b>(
             op: ValueOps::Smin,
             op_type: _,
         } => {
-            let smin_intrinsic = Intrinsic::find("llvm.smin").unwrap();
-            let smin_fn = smin_intrinsic.get_declaration(&module, &[]).unwrap();
+            let smin_intrinsic = Intrinsic::find("llvm.smin.i64").unwrap();
+            let smin_fn = smin_intrinsic
+                .get_declaration(&module, &[BasicTypeEnum::IntType(context.i64_type())])
+                .unwrap();
 
             let ret_name = fresh.fresh_var();
             build_op(
