@@ -369,7 +369,8 @@ impl CompileEnv<'_> {
             bril::ValueOps::Sub => ir::Opcode::Isub,
             bril::ValueOps::Mul => ir::Opcode::Imul,
             bril::ValueOps::Div => ir::Opcode::Sdiv,
-            bril::ValueOps::And => ir::Opcode::Band,
+            bril::ValueOps::Bitand
+            | bril::ValueOps::And => ir::Opcode::Band,
             bril::ValueOps::Or => ir::Opcode::Bor,
             bril::ValueOps::Fadd => ir::Opcode::Fadd,
             bril::ValueOps::Fsub => ir::Opcode::Fsub,
@@ -474,12 +475,18 @@ impl CompileEnv<'_> {
                 op_type,
                 ..
             } => match op {
+                bril::ValueOps::Neg => {
+                    let x = builder.use_var(self.vars[&args[0]]);
+                    let res = builder.ins().ineg(x);
+                    builder.def_var(self.vars[dest], res);
+                }
                 bril::ValueOps::Abs => {
                     let x = builder.use_var(self.vars[&args[0]]);
                     let res = builder.ins().iabs(x);
                     builder.def_var(self.vars[dest], res);
                 }
-                bril::ValueOps::Add
+                bril::ValueOps::Bitand
+                | bril::ValueOps::Add
                 | bril::ValueOps::Sub
                 | bril::ValueOps::Mul
                 | bril::ValueOps::Div

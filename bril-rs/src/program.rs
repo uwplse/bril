@@ -393,6 +393,10 @@ impl Display for EffectOps {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum ValueOps {
+    /// Bitwise operations
+    Bitand,
+    /// Unary negation
+    Neg,
     /// Absolute Values
     Abs,
     /// <https://capra.cs.cornell.edu/bril/lang/core.html#arithmetic>
@@ -504,6 +508,8 @@ pub enum ValueOps {
 impl Display for ValueOps {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
+            Self::Bitand => write!(f, "bitand"),
+            Self::Neg => write!(f, "neg"),
             Self::Abs => write!(f, "abs"),
             Self::Add => write!(f, "add"),
             Self::Sub => write!(f, "sub"),

@@ -95,7 +95,8 @@ fn type_check_instruction<'a>(
       update_env(env, dest, const_type)
     }
     Instruction::Value {
-      op: ValueOps::Abs,
+      op: ValueOps::Abs
+      | ValueOps::Neg,
       dest,
       op_type,
       args,
@@ -112,7 +113,8 @@ fn type_check_instruction<'a>(
     }
     Instruction::Value {
       op:
-        ValueOps::Add
+        ValueOps::Bitand
+        | ValueOps::Add
         | ValueOps::Sub
         | ValueOps::Mul
         | ValueOps::Div
