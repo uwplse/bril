@@ -1,0 +1,6 @@
+@main {
+  n: int = const 21324;
+  t: int = neg n;
+  lb: int = bitand n t;
+  print lb;
+}

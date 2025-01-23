@@ -1,0 +1,19 @@
+@main {
+  n: int = const 21324;
+  lb: int = const 1;
+  two: int = const 2;
+
+.loop:
+  t0: int = div n two;
+  t1: int = mul t0 two;
+  cond: bool = eq t1 n;
+  br cond .cont .end;
+
+.cont:
+  n: int = div n two;
+  lb: int = mul lb two;
+  jmp .loop;
+
+.end:
+  print lb;
+}
