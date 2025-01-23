@@ -211,6 +211,8 @@ impl TryFrom<AbstractInstruction> for Instruction {
                 #[cfg(feature = "position")]
                 pos: pos.clone(),
                 op: match op.as_ref() {
+                    "bitand" => ValueOps::Bitand,
+                    "neg" => ValueOps::Neg,
                     "abs" => ValueOps::Abs,
                     "add" => ValueOps::Add,
                     "mul" => ValueOps::Mul,

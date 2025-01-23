@@ -1,0 +1,8 @@
+@main {
+  a: int = const 4;
+  b: int = const 6;
+  c: int = bitand a b;
+  d: int = neg c;
+  print c;
+  print d;
+}
