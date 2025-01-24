@@ -298,6 +298,34 @@ fn build_instruction<'a, 'b>(
             dest,
             funcs: _,
             labels: _,
+            op: ValueOps::Bitand,
+            op_type: _,
+        } => {
+            let ret_name = fresh.fresh_var();
+            build_op(
+                context,
+                builder,
+                heap,
+                fresh,
+                |v| {
+                    builder
+                        .build_and::<IntValue>(
+                            v[0].try_into().unwrap(),
+                            v[1].try_into().unwrap(),
+                            &ret_name,
+                        )
+                        .unwrap()
+                        .into()
+                },
+                args,
+                dest,
+            );
+        }
+        Instruction::Value {
+            args,
+            dest,
+            funcs: _,
+            labels: _,
             op: ValueOps::Add,
             op_type: _,
         } => {
@@ -543,6 +571,30 @@ fn build_instruction<'a, 'b>(
                             v[1].try_into().unwrap(),
                             &ret_name,
                         )
+                        .unwrap()
+                        .into()
+                },
+                args,
+                dest,
+            );
+        }
+        Instruction::Value {
+            args,
+            dest,
+            funcs: _,
+            labels: _,
+            op: ValueOps::Neg,
+            op_type: _,
+        } => {
+            let ret_name = fresh.fresh_var();
+            build_op(
+                context,
+                builder,
+                heap,
+                fresh,
+                |v| {
+                    builder
+                        .build_int_neg::<IntValue>(v[0].try_into().unwrap(), &ret_name)
                         .unwrap()
                         .into()
                 },
