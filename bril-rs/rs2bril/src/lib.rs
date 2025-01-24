@@ -686,6 +686,7 @@ fn from_expr_to_bril(expr: Expr, state: &mut State) -> (Option<String>, Vec<Code
             let mut place_expression = None;
 
             let (value_op, op_type) = match (op, state.get_type_for_ident(arg1.as_ref().unwrap())) {
+                (BinOp::BitAnd(_), Type::Int) => (ValueOps::Bitand, Type::Int),
                 (BinOp::Add(_), Type::Int) => (ValueOps::Add, Type::Int),
                 (BinOp::Add(_), Type::Float) => (ValueOps::Fadd, Type::Float),
                 (BinOp::Sub(_), Type::Int) => (ValueOps::Sub, Type::Int),
@@ -1157,16 +1158,8 @@ fn from_expr_to_bril(expr: Expr, state: &mut State) -> (Option<String>, Vec<Code
                     (
                         match ty {
                             Type::Int => {
-                                let tmp = state.fresh_var(ty.clone());
-                                code.push(Code::Instruction(Instruction::Constant {
-                                    op: ConstOps::Const,
-                                    dest: tmp.clone(),
-                                    const_type: ty.clone(),
-                                    value: Literal::Int(-1),
-                                    pos: None,
-                                }));
-                                args.push(tmp);
-                                ValueOps::Mul
+                                //Only integer negation for now
+                                ValueOps::Neg
                             }
                             Type::Float => {
                                 let tmp = state.fresh_var(ty.clone());
